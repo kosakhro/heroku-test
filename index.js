@@ -14,119 +14,139 @@ app.use(express.json())
 
 morgan.token('body', (req, res) => JSON.stringify(req.body));
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms  :body '));
-/*
-app.use(morgan(function (tokens, req, res) {
-    return [
-      tokens.method(req, res),
-      tokens.url(req, res),
-      tokens.status(req, res),
-      tokens.res(req, res, 'content-length'), '-',
-      tokens['response-time'](req, res), 'ms',
-      body(req, res)
-    ].join(' ')
-  }))
-*/
 
-
-
-const requestLogger = (request, response, next) => {
-    console.log('Method:', request.method)
-    console.log('Path:  ', request.path)
-    console.log('Body:  ', request.body)
-    console.log('---')
-    console.log('---')
-    next()
-  }
-  
-  const unknownEndpoint = (request, response) => {
-    response.status(404).send({ error: 'unknown endpoint' })
-  }
-  
-  app.use(requestLogger)
-
-let notes = [
+let persons = [
     {
-      id: 1,
-      content: "HTML is easy",
-      date: "2019-05-30T17:30:31.098Z",
-      important: true
+      "name": "Dan Abramov",
+      "number": "12-43-234345",
+      "id": 3
     },
     {
-      id: 2,
-      content: "Browser can execute only Javascript",
-      date: "2019-05-30T18:39:34.091Z",
-      important: false
+      "name": "Mary Poppendieck",
+      "number": "39-23-6423122",
+      "id": 4
     },
     {
-      id: 3,
-      content: "GET and POST are the most important methods of HTTP protocol",
-      date: "2019-05-30T19:20:14.298Z",
-      important: true
+      "name": "mac",
+      "number": "1234",
+      "id": 7
+    },
+    {
+      "name": "tocmac",
+      "number": "89999",
+      "id": 8
+    },
+    {
+      "name": "koka",
+      "number": "4444",
+      "id": 9
+    },
+    {
+      "name": "koks",
+      "number": "123",
+      "id": 10
+    },
+    {
+      "name": "njkj",
+      "number": "123",
+      "id": 11
+    },
+    {
+      "name": "njkj smf ,",
+      "number": "123",
+      "id": 12
+    },
+    {
+      "name": "njkjff3",
+      "number": "123",
+      "id": 13
+    },
+    {
+      "name": "223",
+      "number": "",
+      "id": 14
     }
   ]
 
-  app.get('/api/notes/:id', (request, response) => {
+
+
+
+
+  app.get('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
-    const note = notes.find(note => {
-      console.log(note.id, typeof note.id, id, typeof id, note.id === id)
-      return note.id === id
+    const person = persons.find(person => {
+      //console.log(person.id, typeof person.id, id, typeof id, person.id === id)
+      return person.id === id
     })
-    console.log(note)
-    if (note) {
-        response.json(note)
+    console.log(person)
+    if (person) {
+        response.json(person)
       } else {
         response.status(404).end()
       }
   })
 
 
-  app.get('/', (request, response) => {
-    response.send('<h1>Hello World!</h1>')
-  })
-  
-  app.get('/api/notes', (request, response) => {
-    response.json(notes)
+const Mainpage = `<p>Phonebook has info for ${persons.length} people</p><p>${new Date()}</p>`
+
+
+app.get('/info', (request, response) => {
+    response.send(Mainpage)
   })
 
-  app.delete('/api/notes/:id', (request, response) => {
+
+  app.get('/', (request, response) => {
+    response.send('Hello world')
+  })
+  
+  app.get('/api/persons', (request, response) => {
+    response.json(persons)
+  })
+
+
+  app.delete('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
-    notes = notes.filter(note => note.id !== id)
+    persons = persons.filter(person => person.id !== id)
   
     response.status(204).end()
   })
 
+
   const generateId = () => {
-    const maxId = notes.length > 0
-      ? Math.max(...notes.map(n => n.id))
-      : 0
-    return maxId + 1
+    return Math.floor(Math.random() * Math.floor(1000000))
   }
   
-  app.post('/api/notes', (request, response) => {
-    const body = request.body
   
-    if (!body.content) {
+  app.post('/api/persons', (request, response) => {
+    const body = request.body
+ 
+    if (persons.some(person => person.name === body.name)
+    ) {
+      return response.status(400).json({
+        error: 'name must be unique'
+      })
+    }
+    
+    if (!body.name || !body.number) {
       return response.status(400).json({ 
-        error: 'content missing' 
+        error: 'name or number missing' 
       })
     }
   
-    const note = {
-      content: body.content,
-      important: body.important || false,
-      date: new Date(),
+    const person = {
+      name: body.name,
+      number: body.number,
       id: generateId(),
     }
   
-    notes = notes.concat(note)
+    persons = persons.concat(person)
   
-    response.json(note)
+    response.json(person)
   })
 
-  app.use(unknownEndpoint)
-
   
-  const PORT = process.env.PORT || 3001
+  
+  const PORT = process.env.PORT || 3021
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
   })
