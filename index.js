@@ -65,25 +65,25 @@ app.get('/info', (request, response) => {
     .catch(error => next(error))
 })
 
-
+/*
   const generateId = () => {
     return Math.floor(Math.random() * Math.floor(1000000))
   }
-  
+ */ 
   
   app.post('/api/persons', (request, response, next) => {
     const body = request.body
-
+/*
     if (!body.name || !body.number) {
       return response.status(400).json({ 
         error: 'name or number is missing' 
       })
-    }
+    }*/
 
     const person = new Person({
       name: body.name,
       number: body.number,
-      id: generateId()
+      //id: generateId()
     })  
 
   

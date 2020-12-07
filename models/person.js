@@ -1,10 +1,16 @@
 const mongoose = require('mongoose')
-mongoose.set('useFindAndModify', false)
+const validate = require('mongoose-unique-validator')
+
+
 const url = process.env.MONGODB_URI
 
 console.log('connecting to', url)
 
-mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(url, { 
+  useNewUrlParser: true, 
+  useUnifiedTopology: true, 
+  useFindAndModify: false, 
+  useCreateIndex: true })
   .then(result => {
     console.log('connected to MongoDB')
   })
@@ -15,14 +21,21 @@ mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
 const personSchema = new mongoose.Schema({
   name: {
     type: String,
-    minlength: 1,
-    required: true
+    minlength: [3, 'Minimum 3 letters'],
+    required: true,
+    unique: true
+    
   },
-  number: { 
+  number: {
     type: String,
-    required: true
-  },
-  id: Number
+    validate: {
+      validator: number => {
+        const digits = number.match(/\d/g).join('')
+        return digits.length >= 8
+      },
+      message: props => `${props.value} minimum 8 digits`
+    },
+  }
 })
 
 personSchema.set('toJSON', {
@@ -32,5 +45,7 @@ personSchema.set('toJSON', {
     delete returnedObject.__v
   }
 })
+
+personSchema.plugin(validate)
 
 module.exports = mongoose.model('Person', personSchema)
