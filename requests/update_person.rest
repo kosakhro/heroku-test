@@ -1,8 +1,8 @@
-PUT http://localhost:3021/api/persons/5fcd61f08c55110d6a03a3b1
+PUT http://localhost:3021/api/persons/5fceb0d905893c1c3b90d360
 Content-Type: application/json
 
 {
-  "name": "pipa vakolor",
+  "name": "lol",
 
-  "number": "11111111"
+  "number": "1234567890"
 }
